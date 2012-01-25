@@ -88,7 +88,7 @@ module RailsAdmin
                 table_name, column = f.split '.'
                 type = nil
               elsif f.is_a?(Hash)                                              #  <Model|table_name> => <attribute|column>
-                am = AbstractModel.new(f.keys.first.to_s.classify)
+                am = f.keys.first.is_a?(Class) && AbstractModel.new(f.keys.first)
                 table_name = am && am.model.table_name || f.keys.first
                 column = f.values.first
                 property = am && am.properties.find{ |p| p[:name] == f.values.first.to_sym }
@@ -253,7 +253,7 @@ module RailsAdmin
         end
         
         # Reader for nested attributes
-        def nested_form
+        register_instance_option :nested_form do
           false
         end
         
@@ -265,8 +265,8 @@ module RailsAdmin
           name
         end
         
-        def _html_attributes
-          html_attributes.merge(!default_value.nil? ? { :value => default_value } : {})
+        def html_default_value
+          bindings[:object].new_record? && self.value.nil? && !self.default_value.nil? ? self.default_value : nil
         end
       end
     end

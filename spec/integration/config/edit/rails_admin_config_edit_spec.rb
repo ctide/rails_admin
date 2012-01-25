@@ -6,6 +6,49 @@ describe "RailsAdmin Config DSL Edit Section" do
 
   subject { page }
 
+  describe "default_value" do
+    
+    it "should be set for all types of input fields" do
+      RailsAdmin.config do |config|
+        config.excluded_models = []
+        config.model(FieldTest) do
+        
+          field :string_field do
+            default_value 'string_field default_value'
+          end
+          field :text_field do
+            default_value 'string_field text_field'
+          end
+          field :boolean_field do
+            default_value true
+          end
+          field :date_field do
+            default_value Date.today.to_s
+          end
+        end
+      end
+      
+      visit new_path(:model_name => "field_test")
+      find_field('field_test[string_field]').value.should == 'string_field default_value'
+      find_field('field_test[text_field]').value.should == 'string_field text_field'
+      find_field('field_test[date_field]').value.should == Date.today.to_s
+      has_checked_field?('field_test[boolean_field]').should be_true
+    end
+    
+    it "should set default value for selects" do
+      RailsAdmin.config(Team) do
+        field :color, :enum do
+          default_value 'black'
+          enum do
+            ['black', 'white']
+          end
+        end
+      end
+      visit new_path(:model_name => "team")
+      find_field('team[color]').value.should == 'black'
+    end
+  end
+
   describe "attr_accessible" do
 
 
@@ -112,7 +155,7 @@ describe "RailsAdmin Config DSL Edit Section" do
           end
         end
         visit new_path(:model_name => "team")
-        should have_selector('legend small', :text => "help paragraph to display")
+        should have_selector('.fieldset p', :text => "help paragraph to display")
       end
 
       it "should not show help if not present" do
@@ -124,7 +167,7 @@ describe "RailsAdmin Config DSL Edit Section" do
           end
         end
         visit new_path(:model_name => "team")
-        should_not have_selector('legend small')
+        should_not have_selector('.fieldset p')
       end
 
       it "should be able to display multiple help if there are multiple sections" do
@@ -142,9 +185,9 @@ describe "RailsAdmin Config DSL Edit Section" do
           end
         end
         visit new_path(:model_name => "team")
-        should have_selector("legend small", :text => 'help for default')
-        should have_selector("legend small", :text => 'help for other section')
-        should have_selector("legend small", :count => 2)
+        should have_selector(".fieldset p", :text => 'help for default')
+        should have_selector(".fieldset p", :text => 'help for other section')
+        should have_selector(".fieldset p", :count => 2)
       end
 
       it "should use the db column size for the maximum length" do
@@ -534,7 +577,7 @@ describe "RailsAdmin Config DSL Edit Section" do
         fill_in "field_test[datetime_field]", :with => @time.strftime("%a, %d %b %Y %H:%M:%S")
         click_button "Save"
         @record = RailsAdmin::AbstractModel.new("FieldTest").first
-        @record.datetime_field.should eql(::DateTime.parse(@time.to_s))
+        @record.datetime_field.to_s(:rfc822).should eql(@time.to_s(:rfc822))
       end
 
       it "should have a customization option" do
@@ -549,7 +592,7 @@ describe "RailsAdmin Config DSL Edit Section" do
         fill_in "field_test[datetime_field]", :with => @time.strftime("%Y-%m-%d %H:%M:%S")
         click_button "Save"
         @record = RailsAdmin::AbstractModel.new("FieldTest").first
-        @record.datetime_field.should eql(::DateTime.parse(@time.to_s))
+        @record.datetime_field.to_s(:rfc822).should eql(@time.to_s(:rfc822))
       end
     end
 
@@ -575,7 +618,7 @@ describe "RailsAdmin Config DSL Edit Section" do
         fill_in "field_test[timestamp_field]", :with => @time.strftime("%a, %d %b %Y %H:%M:%S")
         click_button "Save"
         @record = RailsAdmin::AbstractModel.new("FieldTest").first
-        @record.timestamp_field.should eql(::DateTime.parse(@time.to_s))
+        @record.timestamp_field.to_s(:rfc822).should eql(@time.to_s(:rfc822))
       end
 
       it "should have a customization option" do
@@ -590,7 +633,7 @@ describe "RailsAdmin Config DSL Edit Section" do
         fill_in "field_test[timestamp_field]", :with => @time.strftime("%Y-%m-%d %H:%M:%S")
         click_button "Save"
         @record = RailsAdmin::AbstractModel.new("FieldTest").first
-        @record.timestamp_field.should eql(::DateTime.parse(@time.to_s))
+        @record.timestamp_field.to_s(:rfc822).should eql(@time.to_s(:rfc822))
       end
     end
 
@@ -712,10 +755,10 @@ describe "RailsAdmin Config DSL Edit Section" do
         end
       end
       
-      visit new_path(:model_name => 'categories')
+      visit new_path(:model_name => 'category')
       should have_no_css('#category_parent_category_id')
       click_button 'Save'
-      visit edit_path(:model_name => 'categories', :id => Category.first)
+      visit edit_path(:model_name => 'category', :id => Category.first)
       should have_css('#category_parent_category_id')
       click_button 'Save'
       should have_content('Category successfully updated')

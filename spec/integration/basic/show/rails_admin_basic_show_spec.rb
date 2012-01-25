@@ -5,7 +5,6 @@ describe "RailsAdmin Basic Show" do
 
   describe "show" do
     before(:each) do
-      
       @player = FactoryGirl.create :player
       visit show_path(:model_name => "player", :id => @player.id)
     end
@@ -45,7 +44,7 @@ describe "RailsAdmin Basic Show" do
     end
 
     it "should show associated objects" do
-      should have_css("a[href='/admin/teams/#{@team.id}']")
+      should have_css("a[href='/admin/team/#{@team.id}']")
     end
   end
 
@@ -57,7 +56,7 @@ describe "RailsAdmin Basic Show" do
     end
 
     it "should show associated objects" do
-      should have_css("a[href='/admin/drafts/#{@draft.id}']")
+      should have_css("a[href='/admin/draft/#{@draft.id}']")
     end
   end
 
@@ -72,9 +71,9 @@ describe "RailsAdmin Basic Show" do
     end
 
     it "should show associated objects" do
-      should have_css("a[href='/admin/comments/#{@comment1.id}']")
-      should have_css("a[href='/admin/comments/#{@comment2.id}']")
-      should_not have_css("a[href='/admin/comments/#{@comment3.id}']")
+      should have_css("a[href='/admin/comment/#{@comment1.id}']")
+      should have_css("a[href='/admin/comment/#{@comment2.id}']")
+      should_not have_css("a[href='/admin/comment/#{@comment3.id}']")
     end
   end
 
@@ -86,7 +85,7 @@ describe "RailsAdmin Basic Show" do
     end
 
     it "should show associated object" do
-      should have_css("a[href='/admin/players/#{@player.id}']")
+      should have_css("a[href='/admin/player/#{@player.id}']")
     end
   end
 end
